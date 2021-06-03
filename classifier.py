@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import fit
 
 crimes_dict = {0: 'BATTERY', 1: 'THEFT', 2: 'CRIMINAL DAMAGE', 3: 'DECEPTIVE PRACTICE', 4: 'ASSAULT'}
 
@@ -31,12 +32,8 @@ def load_data(path):
     data['Arrest'] = data['Arrest'].apply({True: 1, False: 0}.get)
     data['Domestic'] = data['Domestic'].apply({True: 1, False: 0}.get)
 
-    # data = data.drop("year_and_time")
-    # x_train = data.sample(frac=0.43)
-    # x_temp = data.drop(x_train.index)
-    # x_valid = x_temp.sample(frac=0.50)
-    # x_test = x_temp.drop(x_valid.index)
-
+    pd.get_dummies(data, "Location Description")
+    pd.get_dummies(data, "Community Area")
     return data, Y
 
 
@@ -48,4 +45,6 @@ def send_police_cars(X):
     pass
 
 
-load_data("train_data.csv")
+X, y = load_data("train_data.csv")
+fit.fix(X, y)
+

@@ -3,8 +3,7 @@ from sklearn import metrics
 import pandas as pd
 
 
-def fix(data):
-    y = data["Primary Type"]
+def fix(data, y):
     X = data[["day_of_week", "day", "month", "Time", "District"]]
     pd.get_dummies(X, "District")
     X = X.drop("District", axis=1)
