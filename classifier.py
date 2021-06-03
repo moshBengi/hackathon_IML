@@ -1,7 +1,8 @@
 import pandas as pd
 import numpy as np
-import Knn_Space
+import fit
 from sklearn import metrics
+import math
 from sklearn.ensemble import RandomForestClassifier
 
 crimes_dict = {0: 'BATTERY', 1: 'THEFT', 2: 'CRIMINAL DAMAGE', 3: 'DECEPTIVE PRACTICE', 4: 'ASSAULT'}
@@ -31,13 +32,14 @@ def load_data(path):
     data = data.drop("new_date", axis=1)
     data = data.drop("Date", axis=1)
     data = data.drop("Updated On", axis=1)
-    data = data.drop("year_and_time", axis=1)
     data['Arrest'] = data['Arrest'].apply({True: 1, False: 0}.get)
     data['Domestic'] = data['Domestic'].apply({True: 1, False: 0}.get)
-
     data = pd.get_dummies(data, columns=["Location Description", "Community Area"])
     data['Time'] = data['Time'].apply(lambda x: x.hour)
-
+    data['month'] = data['month'].apply(lambda x: (np.cos(float(x)*2*math.pi/12)))
+    data['day'] = data['day'].apply(lambda x: (np.cos(float(x)*2*math.pi/31)))
+    data['Time'] = data['Time'].apply(lambda x: (np.cos(float(x)*2*math.pi/24)))
+    data['day_of_week'] = data['day_of_week'].apply(lambda x: (np.cos(float(x)*2*math.pi/7)))
 
     return data, Y
 
@@ -53,12 +55,10 @@ def send_police_cars(X):
 if __name__ == '__main__':
 
     X, y = load_data("train_data.csv")
-    new_x = X[["X Coordinate", "Y Coordinate"]]
-    kn = Knn_Space.fit_knn(new_x, y)
-    clf = fit.fit_random_forest(X, y)
+    kn = fit.fit_knn_time(X, y)
 
     X_t, y_t = load_data("valid_data.csv")
-    new_x_t = X_t[["X Coordinate", "Y Coordinate"]]
+    new_x_t = X_t[["month", "Time", "day_of_week"]]
     # X_t = X_t.drop("X Coordinate", axis=1)
     # X_t = X_t.drop("Y Coordinate", axis=1)
 
