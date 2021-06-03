@@ -1,22 +1,21 @@
 import pandas as pd
 import numpy as np
-import fit
-from sklearn import metrics
 import math
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.neighbors import NearestNeighbors
+import pickle
 
-crimes_dict = {0: 'BATTERY', 1: 'THEFT', 2: 'CRIMINAL DAMAGE', 3: 'DECEPTIVE PRACTICE', 4: 'ASSAULT'}
+crimes_dict = {'BATTERY': 0, 'THEFT' : 1, 'CRIMINAL DAMAGE' : 2, 'DECEPTIVE PRACTICE' : 3, 'ASSAULT' : 4}
 
 
-def load_data(path):
+def load_data_1(path):
     """
     :param path: The path to load from the data.
     :return: After the preprocessing - The design matrix X, and the responses y.
     """
     data = pd.read_csv(path)
-    data = data.dropna().drop_duplicates()
+    data = data.fillna(0)
     Y = np.array(data["Primary Type"])
-    data.drop(data.columns[[0, 1]], axis = 1, inplace = True)
+    data.drop(data.columns[[0]], axis=1, inplace=True)
     data = data.drop(
         ["IUCR", "FBI Code", "Description", "ID", "Case Number", "Year", "Latitude", "Longitude", "Location",
          "Primary Type", "Block", "Beat", "District", "Ward"], axis=1)
@@ -32,37 +31,122 @@ def load_data(path):
     data = data.drop("new_date", axis=1)
     data = data.drop("Date", axis=1)
     data = data.drop("Updated On", axis=1)
+    data = data.drop("year_and_time", axis=1)
     data['Arrest'] = data['Arrest'].apply({True: 1, False: 0}.get)
     data['Domestic'] = data['Domestic'].apply({True: 1, False: 0}.get)
     data = pd.get_dummies(data, columns=["Location Description", "Community Area"])
     data['Time'] = data['Time'].apply(lambda x: x.hour)
-    data['month'] = data['month'].apply(lambda x: (np.cos(float(x)*2*math.pi/12)))
-    data['day'] = data['day'].apply(lambda x: (np.cos(float(x)*2*math.pi/31)))
-    data['Time'] = data['Time'].apply(lambda x: (np.cos(float(x)*2*math.pi/24)))
-    data['day_of_week'] = data['day_of_week'].apply(lambda x: (np.cos(float(x)*2*math.pi/7)))
+    data['month'] = data['month'].apply(lambda x: (np.cos(float(x) * math.pi / 12)))
+    data['day'] = data['day'].apply(lambda x: (np.cos(float(x) * math.pi / 31)))
+    data['Time'] = data['Time'].apply(lambda x: (np.cos(float(x) * math.pi / 24)))
+    data['day_of_week'] = data['day_of_week'].apply(lambda x: (np.cos(float(x) * math.pi / 7)))
 
     return data, Y
 
 
+def load_data(path):
+    """
+    :param path: The path to load from the data.
+    :return: After the preprocessing - The design matrix X, and the responses y.
+    """
+    data = pd.read_csv(path)
+    data = data.fillna(0)
+    Y = np.array(data["Primary Type"])
+    data.drop(data.columns[[0]], axis=1, inplace=True)
+    data = data.drop(
+        ["IUCR", "FBI Code", "Description", "ID", "Case Number", "Year", "Latitude", "Longitude", "Location",
+         "Primary Type", "Block", "Beat", "District", "Ward"], axis=1)
+    data[["new_date", "Time"]] = data["Date"].str.split(" ", 1, expand=True)
+    data["new_date"] = pd.to_datetime(data["new_date"], dayfirst=True)
+    data["day_of_week"] = data["new_date"].dt.dayofweek
+    data["day_of_week"] = (data["day_of_week"] + 2) % 7
+    data[["month", "day", "year_and_time"]] = data["Date"].str.split("/", 2, expand=True)
+    data["Time"] = pd.to_datetime(data["Time"]).dt.time
+    data["Updated On"] = pd.to_datetime(data["Updated On"], dayfirst=True)
+    data["Date2"] = pd.to_datetime(data["Date"], dayfirst=True)
+    data["days_update"] = (data["Updated On"] - data["Date2"]) / pd.offsets.Day(1)
+    data = data.drop("new_date", axis=1)
+    data = data.drop("Updated On", axis=1)
+    data = data.drop("year_and_time", axis=1)
+    data['Arrest'] = data['Arrest'].apply({True: 1, False: 0}.get)
+    data['Domestic'] = data['Domestic'].apply({True: 1, False: 0}.get)
+    data = pd.get_dummies(data, columns=["Location Description", "Community Area"])
+    data['Time'] = data['Time'].apply(lambda x: x.hour)
+    data['month'] = data['month'].apply(lambda x: (np.cos(float(x) * math.pi / 12)))
+    data['day'] = data['day'].apply(lambda x: (np.cos(float(x) * math.pi / 31)))
+    data['Time'] = data['Time'].apply(lambda x: (np.cos(float(x) * math.pi / 24)))
+    data['day_of_week'] = data['day_of_week'].apply(lambda x: (np.cos(float(x) * math.pi / 7)))
+    data = data.reset_index()
+    return data, Y
+
+
 def predict(X):
-    pass
+    test, y = load_data_1(X)
+    X_train = pickle.load(open("columns.p", "rb"))
+    cls = pickle.load(open("weights.p", "rb"))
+    missing_cols = set(X_train.columns) - set(test.columns)
+    for c in missing_cols:
+        test[c] = 0
+    test = test[X_train.columns]
+    test = test.drop("X Coordinate", axis=1)
+    test = test.drop("Y Coordinate", axis=1)
+    y_hat = cls.predict(test)
+    return np.vectorize(crimes_dict.get)(y_hat)
 
 
 def send_police_cars(X):
-    pass
+    month = X.split("/")[0]
+    X = pd.to_datetime(X)
+    d = {'day_of_week': [(X.dayofweek + 2) % 7], 'month': [month]}
+    new_point = pd.DataFrame(data=d)
+    new_point['day_of_week'] = new_point['day_of_week'].apply(lambda x: (np.cos(float(x) * math.pi / 7)))
+    new_point['month'] = new_point['month'].apply(lambda x: (np.cos(float(x) * math.pi / 12)))
+
+    data = pickle.load(open("data.p", "rb"))
+    temp_data = data[["day_of_week", "month"]]
+    nbrs = NearestNeighbors(n_neighbors=30, algorithm='ball_tree').fit(temp_data)
+    distances, indices = nbrs.kneighbors(new_point)
+    indices = indices.T
+    arr = []
+    for i in range(indices.shape[0]):
+        arr.append(indices[i][0])
+    df = pd.DataFrame(data, index=arr)
+    df = df[["X Coordinate", "Y Coordinate", "Date"]]
+    lst = df.to_numpy()
+    lst2 = []
+    for j in range(30):
+        lst2.append(tuple(lst[j]))
+    return lst2
 
 
-if __name__ == '__main__':
+# if __name__ == '__main__':
+#     # X, y = load_data_1("train_total.csv")
+#
+#     # t=X.iloc[[0,1]]
+#     # pickle.dump(t, open("columns.p", "wb"))
+#     # k=pickle.load(open("columns.p", "rb"))
+#     # cl=fit.fit_random_forest(X,y)
+#     # pickle.dump(cl, open("weights.p", "wb"))
+#     # cls = pickle.load(open("weights.p", "rb"))
+#
+#     # X_t, y_t = load_data_1("test_total.csv")
+#
+#     # missing_cols = set( X.columns ) - set( X_t.columns )
+#     # for c in missing_cols:
+#     #     X_t[c] = 0
+#     # X_t = X_t[X.columns]
+#     # X_t = X_t.drop("X Coordinate", axis=1)
+#     # X_t = X_t.drop("Y Coordinate", axis=1)
+#
+#     # y_hat_4 = cls.predict(X_t)
+#     # print("Accuracy:", metrics.accuracy_score(y_t, predict("test_total.csv")))
+#
+#     # data, y = load_data("total.csv")
+#     # pickle.dump(data, open("data.p", "wb"))
+#     # k=pickle.load(open("data.p", "rb"))
+#     # r = 5
+#     print(send_police_cars("01/04/2021  21:20:00"))
 
-    X, y = load_data("train_data.csv")
-    kn = fit.fit_knn_time(X, y)
 
-    X_t, y_t = load_data("valid_data.csv")
-    new_x_t = X_t[["month", "Time", "day_of_week"]]
-    # X_t = X_t.drop("X Coordinate", axis=1)
-    # X_t = X_t.drop("Y Coordinate", axis=1)
 
-    y_hat = kn.predict(new_x_t)
-    y_p = kn.predict_proba(new_x_t)
-    print("Accuracy:", metrics.accuracy_score(y_t, y_hat))
-    print("predict prob: ", y_p)
+
