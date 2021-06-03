@@ -10,6 +10,7 @@ def load_data(path):
     :return: After the preprocessing - The design matrix X, and the responses y.
     """
     data = pd.read_csv(path)
+    data = data.dropna().drop_duplicates()
     Y = np.array(data["Primary Type"])
     data = data.drop(["IUCR", "FBI Code", "Description", "ID", "Case Number", "Year", "Latitude", "Longitude", "Location",
                       "Primary Type"], axis=1)
@@ -24,6 +25,9 @@ def load_data(path):
     data["days_update"] = (data["Updated On"] - data["Date"]) / pd.offsets.Day(1)
     data = data.drop("new_date", axis=1)
     data = data.drop("year_and_time", axis=1)
+    data = data.drop("Date", axis=1)
+    data = data.drop("Updated On", axis=1)
+
 
     # data = data.drop("year_and_time")
     # x_train = data.sample(frac=0.43)
