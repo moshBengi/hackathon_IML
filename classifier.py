@@ -27,6 +27,8 @@ def load_data(path):
     data = data.drop("year_and_time", axis=1)
     data = data.drop("Date", axis=1)
     data = data.drop("Updated On", axis=1)
+    data['Arrest'] = data['Arrest'].apply({True: 1, False: 0}.get)
+    data['Domestic'] = data['Domestic'].apply({True: 1, False: 0}.get)
 
 
     # data = data.drop("year_and_time")
