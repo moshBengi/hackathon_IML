@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-import fit
+import Knn_Space
 from sklearn import metrics
 from sklearn.ensemble import RandomForestClassifier
 
@@ -53,11 +53,14 @@ def send_police_cars(X):
 if __name__ == '__main__':
 
     X, y = load_data("train_data.csv")
-    clf = fit.fix(X, y)
-
+    new_x = X[["X Coordinate", "Y Coordinate"]]
+    kn = Knn_Space.fit_knn(new_x, y)
     X_t, y_t = load_data("valid_data.csv")
-    X_t = X_t.drop("X Coordinate", axis=1)
-    X_t = X_t.drop("Y Coordinate", axis=1)
+    new_x_t = X_t[["X Coordinate", "Y Coordinate"]]
+    # X_t = X_t.drop("X Coordinate", axis=1)
+    # X_t = X_t.drop("Y Coordinate", axis=1)
 
-    y_hat = clf.predict(X_t)
+    y_hat = kn.predict(new_x_t)
+    y_p = kn.predict_proba(new_x_t)
     print("Accuracy:", metrics.accuracy_score(y_t, y_hat))
+    print("predict prob: ", y_p)
