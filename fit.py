@@ -1,5 +1,4 @@
 from sklearn.ensemble import RandomForestClassifier
-import pandas as pd
 
 
 def fix(data, y):
