@@ -34,6 +34,8 @@ def load_data(path):
     data['Domestic'] = data['Domestic'].apply({True: 1, False: 0}.get)
 
     data = pd.get_dummies(data, columns=["Location Description", "Community Area"])
+    data['Time'] = data['Time'].apply(lambda x: x.hour)
+
     return data, Y
 
 

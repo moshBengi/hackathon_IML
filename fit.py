@@ -9,8 +9,6 @@ def fix(data, y):
     X = X.drop("District", axis=1)
     # another_X = X["Time"].h
 
-    X['Time'] = X['Time'].apply(lambda x: x.hour)
-
     another_X = X[["Time", "day_of_week"]]
     pd.get_dummies(X, "Time")
     # another_X.drop("Time", axis=1)
