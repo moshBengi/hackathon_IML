@@ -33,8 +33,7 @@ def load_data(path):
     data['Arrest'] = data['Arrest'].apply({True: 1, False: 0}.get)
     data['Domestic'] = data['Domestic'].apply({True: 1, False: 0}.get)
 
-    pd.get_dummies(data, "Location Description")
-    pd.get_dummies(data, "Community Area")
+    data = pd.get_dummies(data, columns=["Location Description", "Community Area"])
     return data, Y
 
 
