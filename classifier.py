@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import math
 from sklearn.neighbors import NearestNeighbors
+import fit
 import pickle
 
 crimes_dict = {'BATTERY': 0, 'THEFT' : 1, 'CRIMINAL DAMAGE' : 2, 'DECEPTIVE PRACTICE' : 3, 'ASSAULT' : 4}
@@ -120,16 +121,16 @@ def send_police_cars(X):
 
 
 # if __name__ == '__main__':
-#     # X, y = load_data_1("train_total.csv")
+#     X, y = load_data_1("train_total.csv")
 #
-#     # t=X.iloc[[0,1]]
-#     # pickle.dump(t, open("columns.p", "wb"))
-#     # k=pickle.load(open("columns.p", "rb"))
-#     # cl=fit.fit_random_forest(X,y)
-#     # pickle.dump(cl, open("weights.p", "wb"))
-#     # cls = pickle.load(open("weights.p", "rb"))
+#     t=X.iloc[[0,1]]
+#     pickle.dump(t, open("columns.p", "wb"))
+#     k=pickle.load(open("columns.p", "rb"))
+#     cl=fit.fit_random_forest(X,y)
+#     pickle.dump(cl, open("weights.p", "wb"))
+#     cls = pickle.load(open("weights.p", "rb"))
 #
-#     # X_t, y_t = load_data_1("test_total.csv")
+    # X_t, y_t = load_data_1("test_total.csv")
 #
 #     # missing_cols = set( X.columns ) - set( X_t.columns )
 #     # for c in missing_cols:

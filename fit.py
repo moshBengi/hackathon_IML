@@ -8,7 +8,7 @@ def fit_random_forest(data, y):
     data = data.drop("X Coordinate", axis=1)
     data = data.drop("Y Coordinate", axis=1)
 
-    clf = RandomForestClassifier(n_estimators=100)
+    clf = RandomForestClassifier(n_estimators=40)
     clf.fit(data, y)
     return clf
 
