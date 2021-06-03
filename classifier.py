@@ -10,7 +10,9 @@ def load_data(path):
     :return: After the preprocessing - The design matrix X, and the responses y.
     """
     data = pd.read_csv(path)
-    data = data.drop(["IUCR", "FBI Code", "Description"], axis=1)
+    Y = np.array(data["Primary Type"])
+    data = data.drop(["IUCR", "FBI Code", "Description", "ID", "Case Number", "Year", "Latitude", "Longitude", "Location",
+                      "Primary Type"], axis=1)
     data[["new_date", "Time"]] = data["Date"].str.split(" ", 1, expand = True)
     data["new_date"] = pd.to_datetime(data["new_date"], dayfirst=True)
     data["day_of_week"] = data["new_date"].dt.dayofweek
@@ -19,9 +21,7 @@ def load_data(path):
     data["Time"] = pd.to_datetime(data["Time"]).dt.time
     data["Updated On"] = pd.to_datetime(data["Updated On"], dayfirst=True)
     data["Date"] = pd.to_datetime(data["Date"], dayfirst=True)
-
     data["days_update"] = (data["Updated On"] - data["Date"]) / pd.offsets.Day(1)
-
     data = data.drop("new_date", axis=1)
     data = data.drop("year_and_time", axis=1)
 
@@ -29,9 +29,9 @@ def load_data(path):
     # x_train = data.sample(frac=0.43)
     # x_temp = data.drop(x_train.index)
     # x_valid = x_temp.sample(frac=0.50)
-    # x_test = x_temp.drop(x_valid.index
+    # x_test = x_temp.drop(x_valid.index)
 
-    return data
+    return data, Y
 
 
 def predict(X):
