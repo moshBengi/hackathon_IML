@@ -9,19 +9,19 @@ def load_data(path):
     :param path: The path to load from the data.
     :return: After the preprocessing - The design matrix X, and the responses y.
     """
-    x_train = pd.read_csv(path)
+    data = pd.read_csv(path)
+    data = data.drop(["IUCR", "FBI Code", "Description"], axis=1)
+    data[["day", "month", "year_and_time"]] = data["Date"].str.split("/", expand = True)
+    data[["Time"]] = data["year_and_time"].str.split(" ", expand= True)[1]
+    data = data.drop("year_and_time")
     # x_train = data.sample(frac=0.43)
     # x_temp = data.drop(x_train.index)
     # x_valid = x_temp.sample(frac=0.50)
     # x_test = x_temp.drop(x_valid.index)
-    # x_train.to_csv("train_data.csv")
-    # x_valid.to_csv("valid_data.csv")
-    # x_test.to_csv("test_data.csv")
 
-    x_train = x_train.drop(["IUCR", "FBI Code", "Description"], axis=1)
-    # data[["day", "month", "year"]] = data["date"].str.split("/", expand = True)
 
-    return x_train
+
+    return x_train, x_valid, x_test
 
 
 def predict(X):
@@ -32,4 +32,4 @@ def send_police_cars(X):
     pass
 
 
-load_data("train_data.csv")
+load_data("Dataset_crimes.csv")
