@@ -15,11 +15,10 @@ def load_data_1(path):
     """
     data = pd.read_csv(path)
     data = data.fillna(0)
-    Y = np.array(data["Primary Type"])
     data.drop(data.columns[[0]], axis=1, inplace=True)
     data = data.drop(
         ["IUCR", "FBI Code", "Description", "ID", "Case Number", "Year", "Latitude", "Longitude", "Location",
-         "Primary Type", "Block", "Beat", "District", "Ward"], axis=1)
+          "Block", "Beat", "District", "Ward"], axis=1)
     data[["new_date", "Time"]] = data["Date"].str.split(" ", 1, expand=True)
     data["new_date"] = pd.to_datetime(data["new_date"], dayfirst=True)
     data["day_of_week"] = data["new_date"].dt.dayofweek
@@ -42,7 +41,7 @@ def load_data_1(path):
     data['Time'] = data['Time'].apply(lambda x: (np.cos(float(x) * math.pi / 24)))
     data['day_of_week'] = data['day_of_week'].apply(lambda x: (np.cos(float(x) * math.pi / 7)))
 
-    return data, Y
+    return data
 
 
 def load_data(path):
@@ -56,7 +55,7 @@ def load_data(path):
     data.drop(data.columns[[0]], axis=1, inplace=True)
     data = data.drop(
         ["IUCR", "FBI Code", "Description", "ID", "Case Number", "Year", "Latitude", "Longitude", "Location",
-         "Primary Type", "Block", "Beat", "District", "Ward"], axis=1)
+         "Block", "Beat", "District", "Ward"], axis=1)
     data[["new_date", "Time"]] = data["Date"].str.split(" ", 1, expand=True)
     data["new_date"] = pd.to_datetime(data["new_date"], dayfirst=True)
     data["day_of_week"] = data["new_date"].dt.dayofweek
@@ -82,7 +81,7 @@ def load_data(path):
 
 
 def predict(X):
-    test, y = load_data_1(X)
+    test = load_data_1(X)
     X_train = pickle.load(open("columns.p", "rb"))
     cls = pickle.load(open("weights.p", "rb"))
     missing_cols = set(X_train.columns) - set(test.columns)
