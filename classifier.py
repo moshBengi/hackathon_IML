@@ -1,6 +1,8 @@
 import pandas as pd
 import numpy as np
 import fit
+from sklearn import metrics
+from sklearn.ensemble import RandomForestClassifier
 
 crimes_dict = {0: 'BATTERY', 1: 'THEFT', 2: 'CRIMINAL DAMAGE', 3: 'DECEPTIVE PRACTICE', 4: 'ASSAULT'}
 
@@ -29,11 +31,13 @@ def load_data(path):
     data = data.drop("new_date", axis=1)
     data = data.drop("Date", axis=1)
     data = data.drop("Updated On", axis=1)
+    data = data.drop("year_and_time", axis=1)
     data['Arrest'] = data['Arrest'].apply({True: 1, False: 0}.get)
     data['Domestic'] = data['Domestic'].apply({True: 1, False: 0}.get)
 
     data = pd.get_dummies(data, columns=["Location Description", "Community Area"])
     data['Time'] = data['Time'].apply(lambda x: x.hour)
+
 
     return data, Y
 
@@ -46,6 +50,14 @@ def send_police_cars(X):
     pass
 
 
-X, y = load_data("train_data.csv")
-fit.fix(X, y)
+if __name__ == '__main__':
 
+    X, y = load_data("train_data.csv")
+    clf = fit.fix(X, y)
+
+    X_t, y_t = load_data("valid_data.csv")
+    X_t = X_t.drop("X Coordinate", axis=1)
+    X_t = X_t.drop("Y Coordinate", axis=1)
+
+    y_hat = clf.predict(X_t)
+    print("Accuracy:", metrics.accuracy_score(y_t, y_hat))
