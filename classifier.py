@@ -1,10 +1,7 @@
-
 import pandas as pd
 import numpy as np
-from sklearn import model_selection
+
 crimes_dict = {0: 'BATTERY', 1: 'THEFT', 2: 'CRIMINAL DAMAGE', 3: 'DECEPTIVE PRACTICE', 4: 'ASSAULT'}
-
-
 
 
 def load_data(path):
@@ -13,7 +10,8 @@ def load_data(path):
     :return: After the preprocessing - The design matrix X, and the responses y.
     """
     data = pd.read_csv(path)
-    data = data.drop(["ICUR", "FBI code", "description"], axis=1)
+    data = data.drop(["IUCR", "FBI Code", "Description"], axis=1)
+    # data[["day", "month", "year"]] = data["date"].str.split("/", expand = True)
     x_train = data.sample(frac=0.43)
     x_temp = data.drop(x_train.index)
     x_valid = x_temp.sample(frac=0.50)
@@ -21,12 +19,15 @@ def load_data(path):
 
 
 
-    return data
+    return x_train, x_valid, x_test
+
 
 def predict(X):
     pass
 
+
 def send_police_cars(X):
     pass
+
 
 load_data("Dataset_crimes.csv")
