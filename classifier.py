@@ -55,6 +55,8 @@ if __name__ == '__main__':
     X, y = load_data("train_data.csv")
     new_x = X[["X Coordinate", "Y Coordinate"]]
     kn = Knn_Space.fit_knn(new_x, y)
+    clf = fit.fit_random_forest(X, y)
+
     X_t, y_t = load_data("valid_data.csv")
     new_x_t = X_t[["X Coordinate", "Y Coordinate"]]
     # X_t = X_t.drop("X Coordinate", axis=1)
