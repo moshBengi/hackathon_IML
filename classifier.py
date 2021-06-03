@@ -12,13 +12,14 @@ def load_data(path):
     data = pd.read_csv(path)
     data = data.dropna().drop_duplicates()
     Y = np.array(data["Primary Type"])
-    data = data.drop(["IUCR", "FBI Code", "Description", "ID", "Case Number", "Year", "Latitude", "Longitude", "Location",
-                      "Primary Type"], axis=1)
-    data[["new_date", "Time"]] = data["Date"].str.split(" ", 1, expand = True)
+    data = data.drop(
+        ["IUCR", "FBI Code", "Description", "ID", "Case Number", "Year", "Latitude", "Longitude", "Location",
+         "Primary Type"], axis=1)
+    data[["new_date", "Time"]] = data["Date"].str.split(" ", 1, expand=True)
     data["new_date"] = pd.to_datetime(data["new_date"], dayfirst=True)
     data["day_of_week"] = data["new_date"].dt.dayofweek
     data["day_of_week"] = (data["day_of_week"] + 2) % 7
-    data[["day", "month", "year_and_time"]] = data["Date"].str.split("/", expand = True)
+    data[["day", "month", "year_and_time"]] = data["Date"].str.split("/", expand=True)
     data["Time"] = pd.to_datetime(data["Time"]).dt.time
     data["Updated On"] = pd.to_datetime(data["Updated On"], dayfirst=True)
     data["Date"] = pd.to_datetime(data["Date"], dayfirst=True)
@@ -29,7 +30,6 @@ def load_data(path):
     data = data.drop("Updated On", axis=1)
     data['Arrest'] = data['Arrest'].apply({True: 1, False: 0}.get)
     data['Domestic'] = data['Domestic'].apply({True: 1, False: 0}.get)
-
 
     # data = data.drop("year_and_time")
     # x_train = data.sample(frac=0.43)
