@@ -29,9 +29,7 @@ def load_data(path):
     # x_train = data.sample(frac=0.43)
     # x_temp = data.drop(x_train.index)
     # x_valid = x_temp.sample(frac=0.50)
-    # x_test = x_temp.drop(x_valid.index)
-
-
+    # x_test = x_temp.drop(x_valid.index
 
     return data
 
