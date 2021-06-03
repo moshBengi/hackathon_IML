@@ -11,9 +11,18 @@ def load_data(path):
     """
     data = pd.read_csv(path)
     data = data.drop(["IUCR", "FBI Code", "Description"], axis=1)
+    data[["new_date"]] = data["Date"].str.split(" ", expand = True)[0]
+    data[["Time"]] = data["Date"].str.split(" ", expand = True)[1]
+    data[["Am_Pm"]] = data["Date"].str.split(" ", expand = True)[2]
+
+    data["new_date"] = pd.to_datetime(data["new_date"], dayfirst=True)
+    data["day_of_week"] = data["new_date"].dt.dayofweek
     data[["day", "month", "year_and_time"]] = data["Date"].str.split("/", expand = True)
     data[["Time"]] = data["year_and_time"].str.split(" ", expand= True)[1]
-    data = data.drop("year_and_time")
+    data = data.drop("new_date", axis=1)
+    data = data.drop("new_date", axis=1)
+
+    # data = data.drop("year_and_time")
     # x_train = data.sample(frac=0.43)
     # x_temp = data.drop(x_train.index)
     # x_valid = x_temp.sample(frac=0.50)
@@ -21,7 +30,7 @@ def load_data(path):
 
 
 
-    return x_train, x_valid, x_test
+    return data
 
 
 def predict(X):
