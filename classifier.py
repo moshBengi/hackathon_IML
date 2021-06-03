@@ -21,13 +21,12 @@ def load_data(path):
     data["new_date"] = pd.to_datetime(data["new_date"], dayfirst=True)
     data["day_of_week"] = data["new_date"].dt.dayofweek
     data["day_of_week"] = (data["day_of_week"] + 2) % 7
-    data[["day", "month", "year_and_time"]] = data["Date"].str.split("/", expand=True)
+    data[["month", "day", "year_and_time"]] = data["Date"].str.split("/", 2, expand=True)
     data["Time"] = pd.to_datetime(data["Time"]).dt.time
     data["Updated On"] = pd.to_datetime(data["Updated On"], dayfirst=True)
     data["Date"] = pd.to_datetime(data["Date"], dayfirst=True)
     data["days_update"] = (data["Updated On"] - data["Date"]) / pd.offsets.Day(1)
     data = data.drop("new_date", axis=1)
-    data = data.drop("year_and_time", axis=1)
     data = data.drop("Date", axis=1)
     data = data.drop("Updated On", axis=1)
     data['Arrest'] = data['Arrest'].apply({True: 1, False: 0}.get)
