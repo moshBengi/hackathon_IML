@@ -13,6 +13,7 @@ def load_data(path):
     :return: After the preprocessing - The design matrix X, and the responses y.
     """
     data = pd.read_csv(path)
+    data = data.drop(["ICUR", "FBI code", "description"], axis=1)
     x_train = data.sample(frac=0.43)
     x_temp = data.drop(x_train.index)
     x_valid = x_temp.sample(frac=0.50)
