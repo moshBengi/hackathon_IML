@@ -13,9 +13,10 @@ def load_data(path):
     data = pd.read_csv(path)
     data = data.dropna().drop_duplicates()
     Y = np.array(data["Primary Type"])
+    data.drop(data.columns[[0, 1]], axis = 1, inplace = True)
     data = data.drop(
         ["IUCR", "FBI Code", "Description", "ID", "Case Number", "Year", "Latitude", "Longitude", "Location",
-         "Primary Type"], axis=1)
+         "Primary Type", "Block", "Beat", "District", "Ward"], axis=1)
     data[["new_date", "Time"]] = data["Date"].str.split(" ", 1, expand=True)
     data["new_date"] = pd.to_datetime(data["new_date"], dayfirst=True)
     data["day_of_week"] = data["new_date"].dt.dayofweek
