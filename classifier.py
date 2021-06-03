@@ -21,7 +21,6 @@ def load_data(path):
     x_train = x_train.drop(["IUCR", "FBI Code", "Description"], axis=1)
     # data[["day", "month", "year"]] = data["date"].str.split("/", expand = True)
 
-
     return x_train
 
 
