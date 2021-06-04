@@ -83,7 +83,10 @@ def load_data(path):
 def predict(X):
     test = load_data_1(X)
     X_train = pickle.load(open("columns.p", "rb"))
+    print(type(X_train))
+    print(type(X_train.columns))
     cls = pickle.load(open("weights.p", "rb"))
+    X.train.head()
     missing_cols = set(X_train.columns) - set(test.columns)
     for c in missing_cols:
         test[c] = 0
@@ -95,27 +98,32 @@ def predict(X):
 
 
 def send_police_cars(X):
-    month = X.split("/")[0]
-    X = pd.to_datetime(X)
-    d = {'day_of_week': [(X.dayofweek + 2) % 7], 'month': [month]}
-    new_point = pd.DataFrame(data=d)
-    new_point['day_of_week'] = new_point['day_of_week'].apply(lambda x: (np.cos(float(x) * math.pi / 7)))
-    new_point['month'] = new_point['month'].apply(lambda x: (np.cos(float(x) * math.pi / 12)))
-
-    data = pickle.load(open("data.p", "rb"))
-    temp_data = data[["day_of_week", "month"]]
-    nbrs = NearestNeighbors(n_neighbors=30, algorithm='ball_tree').fit(temp_data)
-    distances, indices = nbrs.kneighbors(new_point)
-    indices = indices.T
-    arr = []
-    for i in range(indices.shape[0]):
-        arr.append(indices[i][0])
-    df = pd.DataFrame(data, index=arr)
-    df = df[["X Coordinate", "Y Coordinate", "Date"]]
-    lst = df.to_numpy()
+    length = len(X)
+    length = (30 // length) + 1
     lst2 = []
-    for j in range(30):
-        lst2.append(tuple(lst[j]))
+    for i in range(X.shape[0]):
+        x = X[i]
+        month = x.split("/")[0]
+        x = pd.to_datetime(x)
+        d = {'day_of_week': [(x.dayofweek + 2) % 7], 'month': [month]}
+        new_point = pd.DataFrame(data=d)
+        new_point['day_of_week'] = new_point['day_of_week'].apply(lambda y: (np.cos(float(y) * math.pi / 7)))
+        new_point['month'] = new_point['month'].apply(lambda y: (np.cos(float(y) * math.pi / 12)))
+
+        data = pickle.load(open("data.p", "rb"))
+        temp_data = data[["day_of_week", "month"]]
+        nbrs = NearestNeighbors(n_neighbors=30, algorithm='ball_tree').fit(temp_data)
+        distances, indices = nbrs.kneighbors(new_point)
+        indices = indices.T
+        arr = []
+        for i in range(indices.shape[0]):
+            arr.append(indices[i][0])
+        df = pd.DataFrame(data, index=arr)
+        df = df[["X Coordinate", "Y Coordinate", "Date"]]
+        lst = df.to_numpy()
+        for j in range(length):
+            lst2.append(tuple(lst[j]))
+    lst2 = lst2[:30]
     return lst2
 
 
