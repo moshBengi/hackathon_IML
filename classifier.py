@@ -2,7 +2,6 @@ import pandas as pd
 import numpy as np
 import math
 from sklearn.neighbors import NearestNeighbors
-import fit
 import pickle
 
 crimes_dict = {'BATTERY': 0, 'THEFT' : 1, 'CRIMINAL DAMAGE' : 2, 'DECEPTIVE PRACTICE' : 3, 'ASSAULT' : 4}
@@ -83,8 +82,6 @@ def load_data(path):
 def predict(X):
     test = load_data_1(X)
     X_train = pickle.load(open("columns.p", "rb"))
-    print(type(X_train))
-    print(type(X_train.columns))
     cls = pickle.load(open("weights.p", "rb"))
     X.train.head()
     missing_cols = set(X_train.columns) - set(test.columns)
@@ -98,10 +95,8 @@ def predict(X):
 
 
 def send_police_cars(X):
-    length = len(X)
-    length = (30 // length) + 1
-    lst2 = []
-    for i in range(X.shape[0]):
+    lst3 = []
+    for i in range(len(X)):
         x = X[i]
         month = x.split("/")[0]
         x = pd.to_datetime(x)
@@ -121,39 +116,12 @@ def send_police_cars(X):
         df = pd.DataFrame(data, index=arr)
         df = df[["X Coordinate", "Y Coordinate", "Date"]]
         lst = df.to_numpy()
-        for j in range(length):
+        lst2 = []
+        for j in range(30):
             lst2.append(tuple(lst[j]))
-    lst2 = lst2[:30]
-    return lst2
+        lst3.append(lst2)
+    return lst3
 
-
-# if __name__ == '__main__':
-#     X, y = load_data_1("train_total.csv")
-#
-#     t=X.iloc[[0,1]]
-#     pickle.dump(t, open("columns.p", "wb"))
-#     k=pickle.load(open("columns.p", "rb"))
-#     cl=fit.fit_random_forest(X,y)
-#     pickle.dump(cl, open("weights.p", "wb"))
-#     cls = pickle.load(open("weights.p", "rb"))
-#
-    # X_t, y_t = load_data_1("test_total.csv")
-#
-#     # missing_cols = set( X.columns ) - set( X_t.columns )
-#     # for c in missing_cols:
-#     #     X_t[c] = 0
-#     # X_t = X_t[X.columns]
-#     # X_t = X_t.drop("X Coordinate", axis=1)
-#     # X_t = X_t.drop("Y Coordinate", axis=1)
-#
-#     # y_hat_4 = cls.predict(X_t)
-#     # print("Accuracy:", metrics.accuracy_score(y_t, predict("test_total.csv")))
-#
-#     # data, y = load_data("total.csv")
-#     # pickle.dump(data, open("data.p", "wb"))
-#     # k=pickle.load(open("data.p", "rb"))
-#     # r = 5
-#     print(send_police_cars("01/04/2021  21:20:00"))
 
 
 
